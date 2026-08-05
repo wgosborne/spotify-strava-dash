@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model activities {
+  id            Int      @id @default(autoincrement())
+  strava_id     BigInt   @unique
+  name          String
+  distance      Decimal  @db.Decimal
+  moving_time   Int
+  average_speed Decimal  @db.Decimal
+  start_date    DateTime @db.Timestamptz(6)
+  inserted_at   DateTime @default(now()) @db.Timestamptz(6)
+  splits        splits[]
+}
+
+model app_tokens {
+  service       String   @id
+  refresh_token String
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model plays {
+  id          Int      @id @default(autoincrement())
+  track_name  String
+  artist      String
+  played_at   DateTime @db.Timestamptz(6)
+  source      String   @default("spotify")
+  inserted_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([track_name, artist, played_at], map: "plays_track_played_unique")
+}
+
+model splits {
+  id                   Int        @id @default(autoincrement())
+  activity_id          BigInt
+  split_number         Int
+  distance             Decimal    @db.Decimal
+  elapsed_time         Int
+  average_speed        Decimal    @db.Decimal
+  start_offset_seconds Int
+  inserted_at          DateTime   @default(now()) @db.Timestamptz(6)
+  activities           activities @relation(fields: [activity_id], references: [strava_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([activity_id, split_number])
+}
