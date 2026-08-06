@@ -13,6 +13,8 @@ interface SongWithPaceAndActivity extends SongWithPace {
   activityName: string;
   activityDate: Date;
   activityDescription: string | null;
+  splitDistanceMeters: number;
+  albumArtUrl: string | null;
 }
 
 interface FastestSplitResult {
@@ -62,13 +64,17 @@ export async function getTopSongsByPace(limit = 5): Promise<SongWithPaceAndActiv
       activity_name: string;
       activity_start_date: Date;
       activity_description: string | null;
+      distance: number;
+      album_art_url: string | null;
     }>
   >`
     WITH song_splits AS (
       SELECT
         p.track_name,
         p.artist,
+        p.album_art_url,
         s.average_speed,
+        s.distance,
         a.name as activity_name,
         a.start_date as activity_start_date,
         a.description as activity_description,
@@ -85,6 +91,8 @@ export async function getTopSongsByPace(limit = 5): Promise<SongWithPaceAndActiv
       track_name,
       artist,
       average_speed as fastest_average_speed,
+      distance,
+      album_art_url,
       activity_name,
       activity_start_date,
       activity_description
@@ -101,6 +109,8 @@ export async function getTopSongsByPace(limit = 5): Promise<SongWithPaceAndActiv
     activityName: item.activity_name,
     activityDate: item.activity_start_date,
     activityDescription: item.activity_description,
+    splitDistanceMeters: Number(item.distance),
+    albumArtUrl: item.album_art_url,
   }));
 }
 

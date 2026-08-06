@@ -27,12 +27,13 @@ model app_tokens {
 }
 
 model plays {
-  id          Int      @id @default(autoincrement())
-  track_name  String
-  artist      String
-  played_at   DateTime @db.Timestamptz(6)
-  source      String   @default("spotify")
-  inserted_at DateTime @default(now()) @db.Timestamptz(6)
+  id             Int      @id @default(autoincrement())
+  track_name     String
+  artist         String
+  played_at      DateTime @db.Timestamptz(6)
+  source         String   @default("spotify")
+  album_art_url  String?
+  inserted_at    DateTime @default(now()) @db.Timestamptz(6)
 
   @@unique([track_name, artist, played_at], map: "plays_track_played_unique")
   @@index([played_at])

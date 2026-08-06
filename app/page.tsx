@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getTopSongsByPace, getOverallFastestSplit, getSummaryStats, getPaceBySong } from "@/lib/insights";
 import { PaceChart } from "./components/PaceChart";
 
@@ -46,51 +47,59 @@ export default async function Home() {
 
       {/* Overall Fastest Split */}
       {fastestSplit && (
-        <div className="border-2 border-spotify-green rounded-lg p-6 bg-dark mb-10">
-          <div className="mb-4">
-            <p className="text-spotify-green text-sm uppercase tracking-wide font-semibold mb-2">
-              Overall Fastest Split
+        <div className="relative rounded-lg border border-spotify-green/50 bg-dark mb-10 overflow-hidden hover:border-spotify-green transition">
+          {/* Accent wash */}
+          <div className="absolute inset-0 bg-linear-to-l from-spotify-green/10 to-transparent pointer-events-none" />
+
+          <div className="relative p-6">
+            <p className="text-spotify-green text-xs uppercase tracking-widest font-semibold mb-4">
+              ⚡ Overall Fastest Split
             </p>
-            {fastestSplit.songs.length > 0 && (
-              <p className="text-gray-300 text-sm">
-                <span className="text-white font-medium">{fastestSplit.songs[0].trackName}</span>
-                <span className="text-gray-600"> by </span>
-                <span className="text-gray-400">{fastestSplit.songs[0].artist}</span>
-              </p>
-            )}
-          </div>
-          <div className="mb-6">
-            <p className="text-4xl font-bold text-white mb-4">
-              {fastestSplit.pace}
-            </p>
-            {fastestSplit.songs.length > 0 && (
-              <div className="mb-4 pb-4 border-b border-dark/50">
-                {fastestSplit.songs.map((song, idx) => (
-                  <p key={idx} className="text-gray-300 text-sm">
-                    <span className="text-white font-medium">{song.trackName}</span>
-                    <span className="text-gray-600"> by </span>
-                    <span className="text-gray-400">{song.artist}</span>
-                  </p>
-                ))}
+
+            <div className="flex gap-6 items-start mb-6">
+              {/* Pace display */}
+              <div className="shrink-0">
+                <p className="text-5xl font-bold text-spotify-green">
+                  {fastestSplit.pace}
+                </p>
+                <p className="text-gray-500 text-xs mt-1">
+                  Split {fastestSplit.splitNumber}
+                </p>
               </div>
-            )}
-            <p className="text-gray-400 text-sm mb-3">
-              {fastestSplit.distance.toFixed(2)} mi • Split {fastestSplit.splitNumber}
-            </p>
-            <Link
-              href={`/runs/${fastestSplit.activityStravaId}`}
-              className="text-spotify-green hover:underline text-sm"
-            >
-              {fastestSplit.activityName}
-            </Link>
-            <p className="text-gray-500 text-xs mt-1">
-              {fastestSplit.activityDate.toLocaleDateString()}
-            </p>
-            {fastestSplit.activityDescription && (
-              <p className="text-gray-400 text-xs mt-2">
-                {fastestSplit.activityDescription}
-              </p>
-            )}
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                {fastestSplit.songs.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-white font-semibold text-sm truncate">
+                      {fastestSplit.songs[0].trackName}
+                    </p>
+                    <p className="text-gray-400 text-sm truncate">
+                      {fastestSplit.songs[0].artist}
+                    </p>
+                    {fastestSplit.songs.length > 1 && (
+                      <p className="text-gray-600 text-xs mt-2">
+                        +{fastestSplit.songs.length - 1} more song{fastestSplit.songs.length > 2 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-dark/50">
+                  <p className="text-gray-400 text-sm mb-2">
+                    {fastestSplit.distance.toFixed(2)} mi • {fastestSplit.activityName}
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    {fastestSplit.activityDate.toLocaleDateString()}
+                  </p>
+                  {fastestSplit.activityDescription && (
+                    <p className="text-gray-600 text-xs mt-2">
+                      {fastestSplit.activityDescription}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -102,30 +111,66 @@ export default async function Home() {
         </h2>
         <div className="space-y-3">
           {topSongs.map((song, idx) => (
-            <div key={idx} className="border border-dark rounded-lg p-4 bg-dark hover:bg-dark/80 transition">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium truncate">
-                    {song.trackName}
-                  </p>
-                  <p className="text-gray-400 text-sm truncate">
-                    {song.artist}
-                  </p>
-                  <p className="text-gray-500 text-xs mt-2">
-                    {song.activityName}
-                  </p>
-                  <p className="text-gray-600 text-xs">
-                    {song.activityDate.toLocaleDateString()}
-                  </p>
-                  {song.activityDescription && (
-                    <p className="text-gray-600 text-xs mt-1">
-                      {song.activityDescription}
-                    </p>
+            <div
+              key={idx}
+              className="relative h-24 rounded-lg border border-dark bg-dark overflow-hidden hover:border-spotify-green/50 transition group"
+            >
+              {/* Accent wash on the right */}
+              <div className="absolute inset-0 bg-linear-to-l from-spotify-green/10 to-transparent pointer-events-none" />
+
+              <div className="relative h-full flex items-center gap-4 px-4">
+                {/* Rank circle */}
+                <div className="shrink-0 w-10 h-10 rounded-full bg-spotify-green/20 flex items-center justify-center border border-spotify-green/30">
+                  <span className="text-spotify-green font-bold text-sm">
+                    {idx + 1}
+                  </span>
+                </div>
+
+                {/* Album art thumbnail */}
+                <div className="shrink-0 relative w-12 h-12 rounded overflow-hidden bg-gray-800">
+                  {song.albumArtUrl ? (
+                    <Image
+                      src={song.albumArtUrl}
+                      alt={`${song.trackName} album art`}
+                      fill
+                      className="object-cover"
+                      sizes="48px"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <svg
+                        className="w-6 h-6 text-gray-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9a1 1 0 11-2 0 1 1 0 012 0zm3 0a1 1 0 11-2 0 1 1 0 012 0zm2 1a1 1 0 100-2 1 1 0 000 2z" />
+                      </svg>
+                    </div>
                   )}
                 </div>
-                <p className="text-spotify-green font-mono font-semibold whitespace-nowrap">
-                  {song.pace}
-                </p>
+
+                {/* Text content */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-semibold truncate text-sm">
+                    {song.trackName}
+                  </p>
+                  <p className="text-gray-400 text-xs truncate">
+                    {song.artist}
+                  </p>
+                  <p className="text-gray-500 text-xs mt-1">
+                    {song.activityName} • {(song.splitDistanceMeters / 1609.34).toFixed(2)} mi
+                  </p>
+                </div>
+
+                {/* Pace display */}
+                <div className="shrink-0 text-right">
+                  <p className="text-spotify-green font-mono font-bold text-lg">
+                    {song.pace}
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    {song.activityDate.toLocaleDateString()}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
