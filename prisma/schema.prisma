@@ -15,6 +15,7 @@ model activities {
   moving_time   Int
   average_speed Decimal  @db.Decimal
   start_date    DateTime @db.Timestamptz(6)
+  description   String?
   inserted_at   DateTime @default(now()) @db.Timestamptz(6)
   splits        splits[]
 }
@@ -34,6 +35,7 @@ model plays {
   inserted_at DateTime @default(now()) @db.Timestamptz(6)
 
   @@unique([track_name, artist, played_at], map: "plays_track_played_unique")
+  @@index([played_at])
 }
 
 model splits {

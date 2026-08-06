@@ -17,41 +17,49 @@ export async function getFastestSplitWithSong(
 ): Promise<SplitSongMatch | null> {
   const stravaId = BigInt(activityId);
 
-  // Find the split with the highest average speed
-  const fastestSplit = await prisma.splits.findFirst({
-    where: {
-      activity_id: stravaId,
-    },
-    orderBy: {
-      average_speed: "desc",
-    },
-  });
+  // Find the fastest reliable split using a single SQL query
+  const fastestSplitResult = await prisma.$queryRaw<
+    Array<{
+      split_number: number;
+      average_speed: number;
+      distance: number;
+      start_offset_seconds: number;
+      elapsed_time: number;
+      activity_start_date: Date;
+    }>
+  >`
+    SELECT
+      s.split_number,
+      s.average_speed,
+      s.distance,
+      s.start_offset_seconds,
+      s.elapsed_time,
+      a.start_date as activity_start_date
+    FROM splits s
+    JOIN activities a ON s.activity_id = a.strava_id
+    WHERE
+      s.activity_id = ${stravaId}
+      AND s.distance >= 1448.406
+      AND s.average_speed <= 8.94
+    ORDER BY s.average_speed DESC
+    LIMIT 1
+  `;
 
-  if (!fastestSplit) {
+  if (fastestSplitResult.length === 0) {
     return null;
   }
 
-  // Get the activity to find its start_date
-  const activity = await prisma.activities.findUnique({
-    where: {
-      strava_id: stravaId,
-    },
-  });
+  const split = fastestSplitResult[0];
 
-  if (!activity) {
-    return null;
-  }
-
-  // Calculate real-world start and end timestamps of the split
+  // Calculate split time window
   const splitStartTime = new Date(
-    activity.start_date.getTime() +
-      fastestSplit.start_offset_seconds * 1000
+    split.activity_start_date.getTime() + split.start_offset_seconds * 1000
   );
   const splitEndTime = new Date(
-    splitStartTime.getTime() + fastestSplit.elapsed_time * 1000
+    splitStartTime.getTime() + split.elapsed_time * 1000
   );
 
-  // Find songs that were playing during this split
+  // Find songs during this split
   const songs = await prisma.plays.findMany({
     where: {
       played_at: {
@@ -67,9 +75,9 @@ export async function getFastestSplitWithSong(
 
   return {
     split: {
-      splitNumber: fastestSplit.split_number,
-      averageSpeed: Number(fastestSplit.average_speed),
-      distance: Number(fastestSplit.distance),
+      splitNumber: split.split_number,
+      averageSpeed: Number(split.average_speed),
+      distance: Number(split.distance),
     },
     songs: songs.map((song) => ({
       trackName: song.track_name,

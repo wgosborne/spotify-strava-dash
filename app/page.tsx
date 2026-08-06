@@ -86,6 +86,11 @@ export default async function Home() {
             <p className="text-gray-500 text-xs mt-1">
               {fastestSplit.activityDate.toLocaleDateString()}
             </p>
+            {fastestSplit.activityDescription && (
+              <p className="text-gray-400 text-xs mt-2">
+                {fastestSplit.activityDescription}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -106,6 +111,17 @@ export default async function Home() {
                   <p className="text-gray-400 text-sm truncate">
                     {song.artist}
                   </p>
+                  <p className="text-gray-500 text-xs mt-2">
+                    {song.activityName}
+                  </p>
+                  <p className="text-gray-600 text-xs">
+                    {song.activityDate.toLocaleDateString()}
+                  </p>
+                  {song.activityDescription && (
+                    <p className="text-gray-600 text-xs mt-1">
+                      {song.activityDescription}
+                    </p>
+                  )}
                 </div>
                 <p className="text-spotify-green font-mono font-semibold whitespace-nowrap">
                   {song.pace}
