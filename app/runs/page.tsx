@@ -32,62 +32,68 @@ export default async function RunsPage() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
+    <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">Recent Runs</h1>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm md:text-base">
-          <thead>
-            <tr className="border-b border-dark">
-              <th className="text-left py-3 px-4 font-semibold text-spotify-green">
-                Activity Name
-              </th>
-              <th className="text-left py-3 px-4 font-semibold text-spotify-green hidden sm:table-cell">
-                Distance (mi)
-              </th>
-              <th className="text-left py-3 px-4 font-semibold text-spotify-green hidden md:table-cell">
-                Moving Time
-              </th>
-              <th className="text-left py-3 px-4 font-semibold text-spotify-green">
-                Pace
-              </th>
-              <th className="text-left py-3 px-4 font-semibold text-spotify-green hidden lg:table-cell">
-                Start Date
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {activities.map((activity, idx) => (
-              <tr
-                key={activity.id}
-                className={`border-b border-dark ${
-                  idx % 2 === 0 ? "bg-dark" : "bg-black"
-                } hover:bg-dark/80 transition`}
-              >
-                <td className="py-3 px-4">
-                  <Link
-                    href={`/runs/${activity.strava_id}`}
-                    className="text-spotify-green hover:underline font-medium"
-                  >
-                    {activity.name}
-                  </Link>
-                </td>
-                <td className="py-3 px-4 text-gray-400 hidden sm:table-cell text-sm">
-                  {metersToMiles(Number(activity.distance)).toFixed(2)}
-                </td>
-                <td className="py-3 px-4 text-gray-400 hidden md:table-cell text-sm">
-                  {formatMovingTime(activity.moving_time)}
-                </td>
-                <td className="py-3 px-4 text-gray-400 font-mono text-sm">
-                  {speedToPace(Number(activity.average_speed))}
-                </td>
-                <td className="py-3 px-4 text-gray-500 hidden lg:table-cell text-xs">
-                  {activity.start_date.toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="space-y-3">
+        {activities.map((activity) => (
+          <Link
+            key={activity.id}
+            href={`/runs/${activity.strava_id}`}
+            className="block"
+          >
+            <div className="relative rounded-lg border border-dark bg-dark overflow-hidden hover:border-spotify-green/50 transition group p-4">
+              {/* Accent wash */}
+              <div className="absolute inset-0 bg-linear-to-l from-spotify-green/10 to-transparent pointer-events-none" />
+
+              <div className="relative">
+                {/* Header row with name and key stats */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-spotify-green hover:underline font-semibold text-base">
+                      {activity.name}
+                    </h3>
+                  </div>
+                  <div className="flex gap-4 text-sm">
+                    <div className="shrink-0">
+                      <p className="text-gray-500 text-xs uppercase tracking-wide">Distance</p>
+                      <p className="text-white font-medium">
+                        {metersToMiles(Number(activity.distance)).toFixed(2)} mi
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      <p className="text-gray-500 text-xs uppercase tracking-wide">Pace</p>
+                      <p className="text-white font-mono font-medium">
+                        {speedToPace(Number(activity.average_speed))}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      <p className="text-gray-500 text-xs uppercase tracking-wide">Time</p>
+                      <p className="text-white font-medium">
+                        {formatMovingTime(activity.moving_time)}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      <p className="text-gray-500 text-xs uppercase tracking-wide">Date</p>
+                      <p className="text-white font-medium text-sm">
+                        {activity.start_date.toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description section */}
+                {activity.description && (
+                  <div className="pt-3 border-t border-dark/50">
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {activity.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
 
       {activities.length === 0 && (

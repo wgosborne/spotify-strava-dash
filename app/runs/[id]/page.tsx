@@ -60,26 +60,41 @@ export default async function RunDetailPage({ params }: PageParams) {
 
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">{activity.name}</h1>
 
-      <div className="mb-8 space-y-2">
-        <div className="flex flex-col sm:flex-row sm:gap-8">
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Date</p>
-            <p className="text-spotify-green font-medium">{activity.start_date.toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Distance</p>
-            <p className="text-spotify-green font-medium">{metersToMiles(Number(activity.distance)).toFixed(2)} mi</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Moving Time</p>
-            <p className="text-spotify-green font-medium">{formatMovingTime(activity.moving_time)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Pace</p>
-            <p className="text-spotify-green font-medium font-mono">{speedToPace(Number(activity.average_speed))}</p>
-          </div>
+      {/* Stats cards */}
+      <div className="mb-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="border border-dark rounded-lg p-4 bg-dark/50">
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Date</p>
+          <p className="text-spotify-green font-medium text-sm">{activity.start_date.toLocaleDateString()}</p>
+          <p className="text-gray-600 text-xs">{activity.start_date.toLocaleTimeString()}</p>
+        </div>
+        <div className="border border-dark rounded-lg p-4 bg-dark/50">
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Distance</p>
+          <p className="text-spotify-green font-medium text-lg">{metersToMiles(Number(activity.distance)).toFixed(2)} <span className="text-sm">mi</span></p>
+        </div>
+        <div className="border border-dark rounded-lg p-4 bg-dark/50">
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Moving Time</p>
+          <p className="text-spotify-green font-medium text-lg">{formatMovingTime(activity.moving_time)}</p>
+        </div>
+        <div className="border border-dark rounded-lg p-4 bg-dark/50">
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Pace</p>
+          <p className="text-spotify-green font-medium font-mono text-lg">{speedToPace(Number(activity.average_speed))}</p>
         </div>
       </div>
+
+      {/* Description section */}
+      {activity.description && (
+        <div className="mb-8 relative rounded-lg border border-spotify-green/30 bg-dark/50 p-6 overflow-hidden">
+          <div className="absolute inset-0 bg-linear-to-r from-spotify-green/5 to-transparent pointer-events-none" />
+          <div className="relative">
+            <p className="text-spotify-green text-xs uppercase tracking-widest font-semibold mb-3">
+              Run Notes
+            </p>
+            <p className="text-gray-200 text-base leading-relaxed">
+              {activity.description}
+            </p>
+          </div>
+        </div>
+      )}
 
       <h2 className="text-2xl font-bold mb-6 text-white">Splits</h2>
 
