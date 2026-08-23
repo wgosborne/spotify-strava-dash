@@ -62,34 +62,34 @@ export default async function RunDetailPage({ params }: PageParams) {
 
       {/* Stats cards */}
       <div className="mb-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="border border-dark rounded-lg p-4 bg-dark/50">
-          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Date</p>
+        <div className="glass-panel rounded-lg p-4">
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>Date</p>
           <p className="text-spotify-green font-medium text-sm">{activity.start_date.toLocaleDateString()}</p>
-          <p className="text-gray-600 text-xs">{activity.start_date.toLocaleTimeString()}</p>
+          <p className="text-gray-400 text-xs">{activity.start_date.toLocaleTimeString()}</p>
         </div>
-        <div className="border border-dark rounded-lg p-4 bg-dark/50">
-          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Distance</p>
+        <div className="glass-panel rounded-lg p-4">
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>Distance</p>
           <p className="text-spotify-green font-medium text-lg">{metersToMiles(Number(activity.distance)).toFixed(2)} <span className="text-sm">mi</span></p>
         </div>
-        <div className="border border-dark rounded-lg p-4 bg-dark/50">
-          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Moving Time</p>
+        <div className="glass-panel rounded-lg p-4">
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>Moving Time</p>
           <p className="text-spotify-green font-medium text-lg">{formatMovingTime(activity.moving_time)}</p>
         </div>
-        <div className="border border-dark rounded-lg p-4 bg-dark/50">
-          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Pace</p>
+        <div className="glass-panel rounded-lg p-4">
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>Pace</p>
           <p className="text-spotify-green font-medium font-mono text-lg">{speedToPace(Number(activity.average_speed))}</p>
         </div>
       </div>
 
       {/* Description section */}
       {activity.description && (
-        <div className="mb-8 relative rounded-lg border border-spotify-green/30 bg-dark/50 p-6 overflow-hidden">
+        <div className="mb-8 relative rounded-lg glass-panel p-6 overflow-hidden">
           <div className="absolute inset-0 bg-linear-to-r from-spotify-green/5 to-transparent pointer-events-none" />
           <div className="relative">
             <p className="text-spotify-green text-xs uppercase tracking-widest font-semibold mb-3">
               Run Notes
             </p>
-            <p className="text-gray-200 text-base leading-relaxed">
+            <p className="text-white text-base leading-relaxed">
               {activity.description}
             </p>
           </div>
@@ -99,20 +99,20 @@ export default async function RunDetailPage({ params }: PageParams) {
       <h2 className="text-2xl font-bold mb-6 text-white">Splits</h2>
 
       {splits.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm md:text-base">
+        <div className="overflow-x-auto rounded-lg">
+          <table className="w-full text-sm md:text-base glass-panel">
             <thead>
-              <tr className="border-b border-dark">
-                <th className="text-left py-3 px-4 font-semibold text-spotify-green">
+              <tr className="border-b glass-border">
+                <th className="text-left py-3 px-4 font-semibold text-spotify-green" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
                   Split #
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-spotify-green">
+                <th className="text-left py-3 px-4 font-semibold text-spotify-green" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
                   Distance (mi)
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-spotify-green hidden sm:table-cell">
+                <th className="text-left py-3 px-4 font-semibold text-spotify-green hidden sm:table-cell" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
                   Elapsed Time
                 </th>
-                <th className="text-left py-3 px-4 font-semibold text-spotify-green">
+                <th className="text-left py-3 px-4 font-semibold text-spotify-green" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
                   Pace
                 </th>
               </tr>
@@ -121,18 +121,18 @@ export default async function RunDetailPage({ params }: PageParams) {
               {splits.map((split, idx) => (
                 <tr
                   key={split.id}
-                  className={`border-b border-dark ${
-                    idx % 2 === 0 ? "bg-dark" : "bg-black"
-                  } hover:bg-dark/80 transition`}
+                  className={`${
+                    idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.05]'
+                  } hover:bg-[rgba(255,255,255,0.08)] transition`}
                 >
-                  <td className="py-3 px-4 text-gray-400 font-medium">{split.split_number}</td>
-                  <td className="py-3 px-4 text-gray-400">
+                  <td className="py-3 px-4 text-white font-medium">{split.split_number}</td>
+                  <td className="py-3 px-4 text-white">
                     {metersToMiles(Number(split.distance)).toFixed(2)}
                   </td>
-                  <td className="py-3 px-4 text-gray-400 hidden sm:table-cell text-sm">
+                  <td className="py-3 px-4 text-white hidden sm:table-cell text-sm">
                     {formatMovingTime(split.elapsed_time)}
                   </td>
-                  <td className="py-3 px-4 text-gray-400 font-mono text-sm">
+                  <td className="py-3 px-4 text-white font-mono text-sm">
                     {speedToPace(Number(split.average_speed))}
                   </td>
                 </tr>

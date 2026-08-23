@@ -12,17 +12,17 @@ export default async function PlaysPage() {
     <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">Recent Plays</h1>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm md:text-base">
+      <div className="overflow-x-auto rounded-lg">
+        <table className="w-full text-sm md:text-base glass-panel overflow-hidden">
           <thead>
-            <tr className="border-b border-dark">
-              <th className="text-left py-3 px-4 font-semibold text-spotify-green">
+            <tr className="border-b glass-border">
+              <th className="text-left py-3 px-4 font-semibold text-spotify-green" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
                 Track Name
               </th>
-              <th className="text-left py-3 px-4 font-semibold text-spotify-green">
+              <th className="text-left py-3 px-4 font-semibold text-spotify-green" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
                 Artist
               </th>
-              <th className="text-left py-3 px-4 font-semibold text-spotify-green">
+              <th className="text-left py-3 px-4 font-semibold text-spotify-green" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
                 Played At
               </th>
             </tr>
@@ -31,13 +31,15 @@ export default async function PlaysPage() {
             {plays.map((play, idx) => (
               <tr
                 key={play.id}
-                className={`border-b border-dark ${
-                  idx % 2 === 0 ? "bg-dark" : "bg-black"
-                } hover:bg-dark/80 transition`}
+                className={`${
+                  idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.05]'
+                } ${
+                  idx < plays.length - 1 ? 'border-b glass-border' : ''
+                } hover:bg-[rgba(255,255,255,0.08)] transition`}
               >
-                <td className="py-3 px-4 text-white">{play.track_name}</td>
-                <td className="py-3 px-4 text-gray-400">{play.artist}</td>
-                <td className="py-3 px-4 text-gray-500 text-xs md:text-sm">
+                <td className="py-3 px-4 text-white font-semibold">{play.track_name}</td>
+                <td className="py-3 px-4 text-white opacity-75">{play.artist}</td>
+                <td className="py-3 px-4 text-white opacity-60 text-xs md:text-sm">
                   {play.played_at.toLocaleString()}
                 </td>
               </tr>

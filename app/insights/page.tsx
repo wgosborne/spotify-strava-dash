@@ -1,144 +1,108 @@
-import { prisma } from "@/lib/prisma";
-import { getFastestSplitWithSong } from "@/lib/matchSongToSplit";
-
-function formatDate(date: Date): string {
-  return date.toLocaleString();
-}
-
-function speedToPace(metersPerSecond: number): string {
-  const secondsPerMile = 1609.34 / metersPerSecond;
-  const minutes = Math.floor(secondsPerMile / 60);
-  const seconds = Math.floor(secondsPerMile % 60);
-
-  return `${minutes}:${seconds.toString().padStart(2, "0")}/mi`;
-}
-
-function metersToMiles(meters: number): number {
-  return meters / 1609.34;
-}
+import {
+  getPaceOverTime,
+  getArtistBreakdown,
+  getRunFrequency,
+  getDistanceVsPace,
+} from "@/lib/insights";
+import { PaceOverTimeChart } from "@/app/components/PaceOverTimeChart";
+import { ArtistBreakdownChart } from "@/app/components/ArtistBreakdownChart";
+import { RunFrequencyHeatmap } from "@/app/components/RunFrequencyHeatmap";
+import { DistanceVsPaceChart } from "@/app/components/DistanceVsPaceChart";
 
 export default async function InsightsPage() {
-  const activities = await prisma.activities.findMany({
-    orderBy: {
-      start_date: "desc",
-    },
-    take: 50,
-  });
+  const [paceOverTime, artistBreakdown, runFrequency, distanceVsPace] =
+    await Promise.all([
+      getPaceOverTime(),
+      getArtistBreakdown(10),
+      getRunFrequency(),
+      getDistanceVsPace(),
+    ]);
 
-  const activityInsights = await Promise.all(
-    activities.map(async (activity) => {
-      const totalSplits = await prisma.splits.count({
-        where: {
-          activity_id: activity.strava_id,
-        },
-      });
-
-      const sampleSplits = await prisma.splits.findMany({
-        where: {
-          activity_id: activity.strava_id,
-        },
-        take: 3,
-        orderBy: {
-          split_number: "asc",
-        },
-      });
-
-      const splitSongMatch = await getFastestSplitWithSong(
-        activity.strava_id.toString()
-      );
-
-      return {
-        activity,
-        totalSplits,
-        sampleSplits,
-        splitSongMatch,
-      };
-    })
-  );
+  const dateRangeStart = paceOverTime[0]?.date.toLocaleDateString() || "";
+  const dateRangeEnd =
+    paceOverTime[paceOverTime.length - 1]?.date.toLocaleDateString() || "";
+  const dateRange =
+    dateRangeStart && dateRangeEnd
+      ? `${dateRangeStart} — ${dateRangeEnd}`
+      : "No data";
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
-      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">
-        Songs I Ran Fastest To
+    <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+      <h1 className="text-3xl md:text-4xl font-bold mb-12 text-white">
+        Insights
       </h1>
 
-      {activityInsights.length > 0 && (
-        <div className="mb-8 p-4 bg-dark border border-dark rounded-lg text-spotify-green text-sm">
-          <p className="font-semibold mb-3">DEBUG: Raw split distances for first activity</p>
-          <div className="space-y-1">
-            {activityInsights[0].sampleSplits.map((split) => (
-              <p key={split.id} className="font-mono text-xs">
-                Split {split.split_number}: {split.distance.toString()} (raw), {Number(split.distance).toFixed(2)} (as number)
-              </p>
-            ))}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Pace Over Time */}
+        <div className="lg:col-span-2">
+          <div className="glass-panel rounded-lg p-6">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-white">Pace Over Time</h2>
+              <p className="text-gray-400 text-xs mt-1">{dateRange}</p>
+            </div>
+            {paceOverTime.length > 0 ? (
+              <PaceOverTimeChart data={paceOverTime} dateRange={dateRange} />
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-500">
+                No data available
+              </div>
+            )}
           </div>
         </div>
-      )}
 
-      <div className="space-y-6">
-        {activityInsights.map(({ activity, totalSplits, splitSongMatch }) => (
-          <div
-            key={activity.id}
-            className="border border-dark rounded-lg p-6 bg-dark hover:bg-dark/80 transition"
-          >
-            <h2 className="text-xl md:text-2xl font-bold text-spotify-green mb-2">
-              {activity.name}
-            </h2>
-            <p className="text-gray-500 text-sm mb-4">
-              {formatDate(activity.start_date)}
-            </p>
-
-            {totalSplits > 0 && (
-              <p className="text-gray-400 text-xs mb-4">
-                Splits are measured every 1 km
-              </p>
-            )}
-
-            {splitSongMatch ? (
-              <>
-                <div className="mb-6 space-y-2">
-                  <p className="text-gray-300">
-                    <span className="text-spotify-green font-semibold">Fastest Split:</span> Split {splitSongMatch.split.splitNumber} of {totalSplits}
-                  </p>
-                  <p className="text-gray-300">
-                    <span className="text-spotify-green font-semibold">Pace:</span> <span className="font-mono">{speedToPace(splitSongMatch.split.averageSpeed)}</span>
-                  </p>
-                  <p className="text-gray-300">
-                    <span className="text-spotify-green font-semibold">Distance:</span> {metersToMiles(splitSongMatch.split.distance).toFixed(2)} mi
-                  </p>
-                </div>
-
-                {splitSongMatch.songs.length > 0 ? (
-                  <div>
-                    <p className="text-spotify-green font-semibold mb-3">Songs Playing:</p>
-                    <ul className="space-y-2">
-                      {splitSongMatch.songs.map((song, idx) => (
-                        <li key={idx} className="text-gray-400 text-sm">
-                          <span className="text-gray-300">{song.trackName}</span>
-                          <span className="text-gray-600"> by </span>
-                          <span className="text-gray-400">{song.artist}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <p className="text-gray-600 italic text-sm">
-                    No song data for this time window
-                  </p>
-                )}
-              </>
+        {/* Artist Breakdown */}
+        <div>
+          <div className="glass-panel rounded-lg overflow-hidden">
+            <div className="p-6 border-b border-white/10">
+              <h2 className="text-xl font-bold text-white">
+                Who You Run Fastest To
+              </h2>
+            </div>
+            {artistBreakdown.length > 0 ? (
+              <ArtistBreakdownChart data={artistBreakdown} />
             ) : (
-              <p className="text-gray-600 italic text-sm">
-                No split data available
-              </p>
+              <div className="p-4 text-gray-500 text-sm">
+                No artist data available
+              </div>
             )}
           </div>
-        ))}
-      </div>
+        </div>
 
-      {activityInsights.length === 0 && (
-        <p className="text-gray-500 text-center">No activities found.</p>
-      )}
+        {/* Run Frequency Heatmap */}
+        <div>
+          <div className="glass-panel rounded-lg p-6">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-white">Run Consistency</h2>
+            </div>
+            {runFrequency.length > 0 ? (
+              <RunFrequencyHeatmap data={runFrequency} />
+            ) : (
+              <div className="text-gray-500 text-sm">No frequency data</div>
+            )}
+          </div>
+        </div>
+
+        {/* Distance vs Pace */}
+        <div className="lg:col-span-2">
+          <div className="glass-panel rounded-lg p-6">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-white">
+                Distance vs Pace
+              </h2>
+              <p className="text-gray-400 text-xs mt-1">
+                {distanceVsPace.length} splits analyzed
+              </p>
+            </div>
+            {distanceVsPace.length > 0 ? (
+              <DistanceVsPaceChart data={distanceVsPace} />
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-500">
+                No data available
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

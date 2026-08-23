@@ -53,6 +53,27 @@ interface MostPlayedMatchedSong extends Song {
   playCount: number;
 }
 
+interface PaceOverTimeData {
+  date: Date;
+  pace: string;
+  paceSeconds: number;
+}
+
+interface ArtistBreakdownData {
+  artist: string;
+  count: number;
+}
+
+interface RunFrequencyData {
+  date: Date;
+  count: number;
+}
+
+interface DistanceVsPaceData {
+  distance: number;
+  paceSeconds: number;
+}
+
 let statsCache: { data: SummaryStats; timestamp: number } | null = null;
 const STATS_CACHE_TTL = 3600000; // 1 hour in milliseconds
 
@@ -361,4 +382,128 @@ export async function getMostPlayedMatchedSongs(limit = 5): Promise<MostPlayedMa
     albumArtUrl: item.album_art_url,
     playCount: Number(item.play_count),
   }));
+}
+
+export async function getPaceOverTime(): Promise<PaceOverTimeData[]> {
+  const results = await prisma.$queryRaw<
+    Array<{
+      activity_start_date: Date;
+      fastest_average_speed: number;
+    }>
+  >`
+    WITH fastest_per_activity AS (
+      SELECT
+        a.start_date as activity_start_date,
+        s.average_speed,
+        ROW_NUMBER() OVER (PARTITION BY a.strava_id ORDER BY s.average_speed DESC) as rn
+      FROM activities a
+      JOIN splits s ON s.activity_id = a.strava_id
+      WHERE s.distance >= 400 AND s.average_speed <= 5.03
+        AND a.start_date >= NOW() - INTERVAL '1 year'
+    )
+    SELECT
+      activity_start_date,
+      average_speed as fastest_average_speed
+    FROM fastest_per_activity
+    WHERE rn = 1
+    ORDER BY activity_start_date ASC
+  `;
+
+  return results.map((item) => {
+    const metersPerSecond = Number(item.fastest_average_speed);
+    const paceInSecondsPerMile = 1609.34 / metersPerSecond;
+    return {
+      date: item.activity_start_date,
+      pace: speedToPace(metersPerSecond),
+      paceSeconds: paceInSecondsPerMile,
+    };
+  });
+}
+
+export async function getArtistBreakdown(limit = 10): Promise<ArtistBreakdownData[]> {
+  const results = await prisma.$queryRaw<
+    Array<{
+      artist: string;
+      run_count: bigint;
+    }>
+  >`
+    WITH matched_songs AS (
+      SELECT
+        p.artist,
+        a.strava_id
+      FROM activities a
+      JOIN splits s ON s.activity_id = a.strava_id
+      CROSS JOIN LATERAL (
+        SELECT DISTINCT artist
+        FROM plays
+        WHERE played_at >= a.start_date + (interval '1 second' * s.start_offset_seconds)
+          AND played_at < a.start_date + (interval '1 second' * (s.start_offset_seconds + s.elapsed_time))
+        OFFSET 0
+      ) p
+      WHERE s.distance >= 400 AND s.average_speed <= 5.03
+        AND a.start_date >= NOW() - INTERVAL '1 year'
+    )
+    SELECT
+      artist,
+      COUNT(DISTINCT strava_id) as run_count
+    FROM matched_songs
+    GROUP BY artist
+    ORDER BY run_count DESC
+    LIMIT ${limit}
+  `;
+
+  return results.map((item) => ({
+    artist: item.artist,
+    count: Number(item.run_count),
+  }));
+}
+
+export async function getRunFrequency(): Promise<RunFrequencyData[]> {
+  const results = await prisma.$queryRaw<
+    Array<{
+      run_date: string;
+      run_count: bigint;
+    }>
+  >`
+    SELECT
+      DATE(a.start_date AT TIME ZONE 'UTC') as run_date,
+      COUNT(*) as run_count
+    FROM activities a
+    WHERE a.start_date >= NOW() - INTERVAL '1 year'
+    GROUP BY DATE(a.start_date AT TIME ZONE 'UTC')
+    ORDER BY run_date ASC
+  `;
+
+  return results.map((item) => ({
+    date: new Date(item.run_date),
+    count: Number(item.run_count),
+  }));
+}
+
+export async function getDistanceVsPace(): Promise<DistanceVsPaceData[]> {
+  const results = await prisma.$queryRaw<
+    Array<{
+      distance: number;
+      average_speed: number;
+    }>
+  >`
+    SELECT
+      s.distance,
+      s.average_speed
+    FROM splits s
+    JOIN activities a ON s.activity_id = a.strava_id
+    WHERE s.distance >= 400 AND s.average_speed <= 5.03
+      AND a.start_date >= NOW() - INTERVAL '1 year'
+    ORDER BY s.distance ASC
+  `;
+
+  return results.map((item) => {
+    const metersPerSecond = Number(item.average_speed);
+    const paceInSecondsPerMile = 1609.34 / metersPerSecond;
+    const distanceInMiles = metersToMiles(Number(item.distance));
+    return {
+      distance: distanceInMiles,
+      paceSeconds: paceInSecondsPerMile,
+    };
+  });
 }

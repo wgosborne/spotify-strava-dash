@@ -59,7 +59,7 @@ export function PaceChart({ data }: PaceChartProps) {
             interval={0}
           />
           <Tooltip
-            formatter={(value: number) => formatPaceLabel(value)}
+            formatter={(value: any) => typeof value === "number" ? formatPaceLabel(value) : value}
             labelFormatter={(label) => {
               const item = chartData.find((d) => d.displayName === label);
               return item ? item.fullName : "";
