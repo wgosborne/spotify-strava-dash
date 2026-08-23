@@ -24,8 +24,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="bg-black text-white flex flex-col min-h-screen">
-        <nav className="bg-dark border-b border-dark sticky top-0 z-50">
+      <body className="text-white flex flex-col min-h-screen">
+        <nav className="bg-black/80 border-b border-dark sticky top-0 z-50">
           <div className="max-w-4xl mx-auto px-4 py-4 flex gap-8">
             <Link href="/" className="text-spotify-green font-semibold hover:opacity-80">
               Home
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </Link>
           </div>
         </nav>
-        <main className="flex-1 bg-black">
+        <main className="flex-1">
           {children}
         </main>
       </body>

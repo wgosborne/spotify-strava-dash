@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 
 interface ChartData {
@@ -33,54 +33,54 @@ export function PaceChart({ data }: PaceChartProps) {
     fullName: `${item.trackName} • ${item.artist}`,
   }));
 
-  const chartHeight = Math.max(data.length * 50, 400);
-  const chartWidth = Math.max(600, data.length * 20);
+  const chartHeight = Math.max(data.length * 30, 300);
 
   return (
-    <div className="w-full overflow-x-auto">
-      <BarChart
-        width={chartWidth}
-        height={chartHeight}
-        data={chartData}
-        layout="vertical"
-        margin={{ top: 10, right: 30, left: 150, bottom: 10 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
-        <XAxis
-          type="number"
-          stroke="#888888"
-          tickFormatter={formatPaceLabel}
-          tick={{ fontSize: 12 }}
-        />
-        <YAxis
-          dataKey="displayName"
-          type="category"
-          width={140}
-          stroke="#888888"
-          tick={{ fontSize: 11, fill: "#d1d5db" }}
-          interval={0}
-        />
-        <Tooltip
-          formatter={(value: number) => formatPaceLabel(value)}
-          labelFormatter={(label) => {
-            const item = chartData.find((d) => d.displayName === label);
-            return item ? item.fullName : "";
-          }}
-          contentStyle={{
-            backgroundColor: "#121212",
-            border: "1px solid #2a2a2a",
-            borderRadius: "0.5rem",
-            fontSize: 12,
-          }}
-          cursor={{ fill: "rgba(29, 185, 84, 0.1)" }}
-        />
-        <Bar
-          dataKey="paceInSecondsPerMile"
-          fill="#1db954"
-          radius={[0, 8, 8, 0]}
-          isAnimationActive={false}
-        />
-      </BarChart>
+    <div className="w-full" style={{ height: `${chartHeight}px` }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          data={chartData}
+          layout="vertical"
+          margin={{ top: 5, right: 20, left: 150, bottom: 5 }}
+        >
+          <XAxis
+            type="number"
+            stroke="none"
+            tick={false}
+            axisLine={false}
+          />
+          <YAxis
+            dataKey="displayName"
+            type="category"
+            width={140}
+            stroke="none"
+            tick={{ fontSize: 11, fill: "#d1d5db" }}
+            axisLine={false}
+            interval={0}
+          />
+          <Tooltip
+            formatter={(value: number) => formatPaceLabel(value)}
+            labelFormatter={(label) => {
+              const item = chartData.find((d) => d.displayName === label);
+              return item ? item.fullName : "";
+            }}
+            contentStyle={{
+              backgroundColor: "rgba(18, 18, 18, 0.95)",
+              border: "1px solid rgba(255, 255, 255, 0.09)",
+              borderRadius: "0.5rem",
+              fontSize: 12,
+            }}
+            cursor={{ stroke: "rgba(255, 255, 255, 0.1)" }}
+          />
+          <Line
+            dataKey="paceInSecondsPerMile"
+            stroke="#ffffff"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 }

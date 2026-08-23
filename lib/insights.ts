@@ -41,6 +41,9 @@ interface SongPaceData {
   paceInSecondsPerMile: number;
 }
 
+let statsCache: { data: SummaryStats; timestamp: number } | null = null;
+const STATS_CACHE_TTL = 3600000; // 1 hour in milliseconds
+
 function speedToPace(metersPerSecond: number): string {
   const secondsPerMile = 1609.34 / metersPerSecond;
   const minutes = Math.floor(secondsPerMile / 60);
@@ -54,8 +57,6 @@ function metersToMiles(meters: number): number {
 }
 
 export async function getTopSongsByPace(limit = 5): Promise<SongWithPaceAndActivity[]> {
-  // Use a single SQL query with window functions to find fastest pace for each song
-  // Filters unreliable splits at database level (distance >= 400m, pace <= 5:20/mi)
   const results = await prisma.$queryRaw<
     Array<{
       track_name: string;
@@ -68,24 +69,39 @@ export async function getTopSongsByPace(limit = 5): Promise<SongWithPaceAndActiv
       album_art_url: string | null;
     }>
   >`
-    WITH song_splits AS (
+    WITH filtered_splits AS (
+      SELECT
+        s.average_speed,
+        s.distance,
+        s.start_offset_seconds,
+        s.elapsed_time,
+        a.strava_id,
+        a.name as activity_name,
+        a.start_date as activity_start_date,
+        a.description as activity_description
+      FROM splits s
+      INNER JOIN activities a ON s.activity_id = a.strava_id
+      WHERE s.distance >= 400 AND s.average_speed <= 5.03
+    ),
+    song_splits AS (
       SELECT
         p.track_name,
         p.artist,
         p.album_art_url,
-        s.average_speed,
-        s.distance,
-        a.name as activity_name,
-        a.start_date as activity_start_date,
-        a.description as activity_description,
-        ROW_NUMBER() OVER (PARTITION BY p.track_name, p.artist ORDER BY s.average_speed DESC) as rn
-      FROM activities a
-      JOIN splits s ON s.activity_id = a.strava_id
-      JOIN plays p ON p.played_at >= a.start_date + (interval '1 second' * s.start_offset_seconds)
-                  AND p.played_at < a.start_date + (interval '1 second' * (s.start_offset_seconds + s.elapsed_time))
-      WHERE
-        s.distance >= 400
-        AND s.average_speed <= 5.03
+        fs.average_speed,
+        fs.distance,
+        fs.activity_name,
+        fs.activity_start_date,
+        fs.activity_description,
+        ROW_NUMBER() OVER (PARTITION BY p.track_name, p.artist ORDER BY fs.average_speed DESC) as rn
+      FROM filtered_splits fs
+      CROSS JOIN LATERAL (
+        SELECT track_name, artist, album_art_url
+        FROM plays
+        WHERE played_at >= fs.activity_start_date + (interval '1 second' * fs.start_offset_seconds)
+          AND played_at < fs.activity_start_date + (interval '1 second' * (fs.start_offset_seconds + fs.elapsed_time))
+        OFFSET 0
+      ) p
     )
     SELECT
       track_name,
@@ -115,8 +131,7 @@ export async function getTopSongsByPace(limit = 5): Promise<SongWithPaceAndActiv
 }
 
 export async function getOverallFastestSplit(): Promise<FastestSplitResult | null> {
-  // Find the fastest reliable split across all activities
-  const fastestSplitResult = await prisma.$queryRaw<
+  const result = await prisma.$queryRaw<
     Array<{
       split_number: number;
       activity_strava_id: bigint;
@@ -127,69 +142,77 @@ export async function getOverallFastestSplit(): Promise<FastestSplitResult | nul
       distance: number;
       start_offset_seconds: number;
       elapsed_time: number;
+      track_name: string | null;
+      artist: string | null;
     }>
   >`
+    WITH fastest_split AS (
+      SELECT
+        s.split_number,
+        a.strava_id as activity_strava_id,
+        a.name as activity_name,
+        a.start_date as activity_start_date,
+        a.description as activity_description,
+        s.average_speed,
+        s.distance,
+        s.start_offset_seconds,
+        s.elapsed_time
+      FROM activities a
+      JOIN splits s ON s.activity_id = a.strava_id
+      WHERE
+        s.distance >= 400
+        AND s.average_speed <= 5.03
+      ORDER BY s.average_speed DESC
+      LIMIT 1
+    )
     SELECT
-      s.split_number,
-      a.strava_id as activity_strava_id,
-      a.name as activity_name,
-      a.start_date as activity_start_date,
-      a.description as activity_description,
-      s.average_speed,
-      s.distance,
-      s.start_offset_seconds,
-      s.elapsed_time
-    FROM activities a
-    JOIN splits s ON s.activity_id = a.strava_id
-    WHERE
-      s.distance >= 400
-      AND s.average_speed <= 5.03
-    ORDER BY s.average_speed DESC
-    LIMIT 1
+      fs.split_number,
+      fs.activity_strava_id,
+      fs.activity_name,
+      fs.activity_start_date,
+      fs.activity_description,
+      fs.average_speed,
+      fs.distance,
+      fs.start_offset_seconds,
+      fs.elapsed_time,
+      p.track_name,
+      p.artist
+    FROM fastest_split fs
+    LEFT JOIN plays p ON
+      p.played_at >= fs.activity_start_date + (interval '1 second' * fs.start_offset_seconds)
+      AND p.played_at < fs.activity_start_date + (interval '1 second' * (fs.start_offset_seconds + fs.elapsed_time))
   `;
 
-  if (fastestSplitResult.length === 0) {
+  if (result.length === 0) {
     return null;
   }
 
-  const split = fastestSplitResult[0];
-  const splitStartTime = new Date(
-    split.activity_start_date.getTime() + split.start_offset_seconds * 1000
-  );
-  const splitEndTime = new Date(
-    splitStartTime.getTime() + split.elapsed_time * 1000
-  );
-
-  // Fetch songs for this specific split
-  const songs = await prisma.plays.findMany({
-    where: {
-      played_at: {
-        gte: splitStartTime,
-        lte: splitEndTime,
-      },
-    },
-    select: {
-      track_name: true,
-      artist: true,
-    },
-  });
+  const splitData = result[0];
+  const songs = result
+    .filter(r => r.track_name !== null)
+    .map(r => ({
+      trackName: r.track_name!,
+      artist: r.artist!,
+    }));
 
   return {
-    splitNumber: split.split_number,
-    activityName: split.activity_name,
-    activityDate: split.activity_start_date,
-    activityDescription: split.activity_description,
-    activityStravaId: split.activity_strava_id,
-    pace: speedToPace(Number(split.average_speed)),
-    distance: metersToMiles(Number(split.distance)),
-    songs: songs.map((s) => ({
-      trackName: s.track_name,
-      artist: s.artist,
-    })),
+    splitNumber: splitData.split_number,
+    activityName: splitData.activity_name,
+    activityDate: splitData.activity_start_date,
+    activityDescription: splitData.activity_description,
+    activityStravaId: splitData.activity_strava_id,
+    pace: speedToPace(Number(splitData.average_speed)),
+    distance: metersToMiles(Number(splitData.distance)),
+    songs,
   };
 }
 
 export async function getSummaryStats(): Promise<SummaryStats> {
+  // Return cached result if still valid
+  if (statsCache && Date.now() - statsCache.timestamp < STATS_CACHE_TTL) {
+    return statsCache.data;
+  }
+
   const totalActivities = await prisma.activities.count();
   const totalPlays = await prisma.plays.count();
 
@@ -211,15 +234,19 @@ export async function getSummaryStats(): Promise<SummaryStats> {
     matchedSongsResult[0]?.count || 0
   );
 
-  return {
+  const result = {
     totalActivities,
     totalPlays,
     totalDistinctSongsMatched,
   };
+
+  // Cache the result
+  statsCache = { data: result, timestamp: Date.now() };
+
+  return result;
 }
 
 export async function getPaceBySong(): Promise<SongPaceData[]> {
-  // Use a single SQL query to find fastest pace for each song
   const results = await prisma.$queryRaw<
     Array<{
       track_name: string;

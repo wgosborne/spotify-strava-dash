@@ -19,24 +19,24 @@ export default async function Home() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-        <div className="border border-dark rounded-lg p-6 bg-dark">
-          <p className="text-gray-500 text-sm uppercase tracking-wide mb-2">
+        <div className="glass-panel rounded-lg p-6">
+          <p className="text-white text-sm uppercase tracking-wide mb-2">
             Total Runs
           </p>
           <p className="text-3xl font-bold text-spotify-green">
             {stats.totalActivities}
           </p>
         </div>
-        <div className="border border-dark rounded-lg p-6 bg-dark">
-          <p className="text-gray-500 text-sm uppercase tracking-wide mb-2">
+        <div className="glass-panel rounded-lg p-6">
+          <p className="text-white text-sm uppercase tracking-wide mb-2">
             Total Plays
           </p>
           <p className="text-3xl font-bold text-spotify-green">
             {stats.totalPlays}
           </p>
         </div>
-        <div className="border border-dark rounded-lg p-6 bg-dark">
-          <p className="text-gray-500 text-sm uppercase tracking-wide mb-2">
+        <div className="glass-panel rounded-lg p-6">
+          <p className="text-white text-sm uppercase tracking-wide mb-2">
             Songs Matched
           </p>
           <p className="text-3xl font-bold text-spotify-green">
@@ -47,7 +47,7 @@ export default async function Home() {
 
       {/* Overall Fastest Split */}
       {fastestSplit && (
-        <div className="relative rounded-lg border border-spotify-green/50 bg-dark mb-10 overflow-hidden hover:border-spotify-green transition">
+        <div className="glass-panel rounded-lg mb-10 overflow-hidden hover:glass-panel transition relative">
           {/* Accent wash */}
           <div className="absolute inset-0 bg-linear-to-l from-spotify-green/10 to-transparent pointer-events-none" />
 
@@ -62,7 +62,7 @@ export default async function Home() {
                 <p className="text-5xl font-bold text-spotify-green">
                   {fastestSplit.pace}
                 </p>
-                <p className="text-gray-500 text-xs mt-1">
+                <p className="text-white text-xs mt-1">
                   Split {fastestSplit.splitNumber}
                 </p>
               </div>
@@ -74,11 +74,11 @@ export default async function Home() {
                     <p className="text-white font-semibold text-sm truncate">
                       {fastestSplit.songs[0].trackName}
                     </p>
-                    <p className="text-gray-400 text-sm truncate">
+                    <p className="text-white text-sm truncate">
                       {fastestSplit.songs[0].artist}
                     </p>
                     {fastestSplit.songs.length > 1 && (
-                      <p className="text-gray-600 text-xs mt-2">
+                      <p className="text-white text-xs mt-2">
                         +{fastestSplit.songs.length - 1} more song{fastestSplit.songs.length > 2 ? 's' : ''}
                       </p>
                     )}
@@ -86,14 +86,14 @@ export default async function Home() {
                 )}
 
                 <div className="pt-4 border-t border-dark/50">
-                  <p className="text-gray-400 text-sm mb-2">
+                  <p className="text-white text-sm mb-2">
                     {fastestSplit.distance.toFixed(2)} mi • {fastestSplit.activityName}
                   </p>
-                  <p className="text-gray-500 text-xs">
+                  <p className="text-white text-xs">
                     {fastestSplit.activityDate.toLocaleDateString()}
                   </p>
                   {fastestSplit.activityDescription && (
-                    <p className="text-gray-600 text-xs mt-2">
+                    <p className="text-white text-xs mt-2">
                       {fastestSplit.activityDescription}
                     </p>
                   )}
@@ -109,16 +109,16 @@ export default async function Home() {
         <h2 className="text-2xl font-bold text-white mb-6">
           Top 5 Songs I&apos;ve Run Fastest To
         </h2>
-        <div className="space-y-4">
+        <div className="glass-panel rounded-lg overflow-hidden">
           {topSongs.map((song, idx) => (
             <div
               key={idx}
-              className="relative rounded-lg border border-dark bg-dark overflow-hidden hover:border-spotify-green/50 transition group"
+              className={`relative p-4 ${idx < topSongs.length - 1 ? 'border-b glass-border' : ''}`}
             >
               {/* Accent wash on the right */}
               <div className="absolute inset-0 bg-linear-to-l from-spotify-green/10 to-transparent pointer-events-none" />
 
-              <div className="relative p-4">
+              <div className="relative">
                 {/* Top section with rank, album art, song info, and pace */}
                 <div className="flex gap-4 items-start mb-4">
                   {/* Rank circle */}
@@ -141,7 +141,7 @@ export default async function Home() {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <svg
-                          className="w-8 h-8 text-gray-600"
+                          className="w-8 h-8 text-white"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -156,10 +156,10 @@ export default async function Home() {
                     <p className="text-white font-semibold text-sm">
                       {song.trackName}
                     </p>
-                    <p className="text-gray-400 text-xs truncate">
+                    <p className="text-white text-xs truncate">
                       {song.artist}
                     </p>
-                    <p className="text-gray-500 text-xs mt-2">
+                    <p className="text-white text-xs mt-2">
                       {song.activityName} • {(song.splitDistanceMeters / 1609.34).toFixed(2)} mi
                     </p>
                   </div>
@@ -169,7 +169,7 @@ export default async function Home() {
                     <p className="text-spotify-green font-mono font-bold text-2xl">
                       {song.pace}
                     </p>
-                    <p className="text-gray-500 text-xs">
+                    <p className="text-white text-xs mt-2">
                       {song.activityDate.toLocaleDateString()}
                     </p>
                   </div>
@@ -177,8 +177,8 @@ export default async function Home() {
 
                 {/* Description section if available */}
                 {song.activityDescription && (
-                  <div className="pt-4 border-t border-dark/50">
-                    <p className="text-gray-300 text-sm leading-relaxed">
+                  <div className="pt-4 border-t glass-border">
+                    <p className="text-white text-sm leading-relaxed">
                       {song.activityDescription}
                     </p>
                   </div>
@@ -195,30 +195,30 @@ export default async function Home() {
           <h2 className="text-2xl font-bold text-white mb-6">
             Pace by Song (Top 15)
           </h2>
-          <div className="border border-dark rounded-lg bg-dark p-4 overflow-x-auto">
+          <div className="glass-panel rounded-lg p-4 overflow-x-auto">
             <PaceChart data={paceBySong} />
           </div>
         </div>
       )}
 
       {/* Navigation Links */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-10 border-t border-dark">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-10 border-t glass-border">
         <Link href="/plays">
-          <div className="border border-dark rounded-lg p-4 bg-dark hover:bg-dark/80 transition cursor-pointer">
+          <div className="glass-panel rounded-lg p-4 hover:bg-[rgba(255,255,255,0.08)] transition cursor-pointer">
             <h3 className="text-lg font-semibold text-spotify-green mb-1">
               Plays
             </h3>
-            <p className="text-gray-400 text-sm">
+            <p className="text-white text-sm">
               Browse recent Spotify plays
             </p>
           </div>
         </Link>
         <Link href="/runs">
-          <div className="border border-dark rounded-lg p-4 bg-dark hover:bg-dark/80 transition cursor-pointer">
+          <div className="glass-panel rounded-lg p-4 hover:bg-[rgba(255,255,255,0.08)] transition cursor-pointer">
             <h3 className="text-lg font-semibold text-spotify-green mb-1">
               Runs
             </h3>
-            <p className="text-gray-400 text-sm">
+            <p className="text-white text-sm">
               View recent Strava activities
             </p>
           </div>

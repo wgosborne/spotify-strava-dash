@@ -51,4 +51,7 @@ model splits {
   activities           activities @relation(fields: [activity_id], references: [strava_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([activity_id, split_number])
+  @@index([distance, average_speed])
+  @@index([average_speed])
+  @@index([activity_id])
 }
