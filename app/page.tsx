@@ -13,33 +13,33 @@ export default async function Home() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
-      <h1 className="text-3xl md:text-4xl font-bold text-white mb-10">
+      <h1 className="text-4xl md:text-5xl font-bold text-white mb-10 leading-tight">
         Dashboard
       </h1>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         <div className="glass-panel rounded-lg p-6">
-          <p className="text-white text-sm uppercase tracking-wide mb-2">
+          <p className="text-white text-base uppercase tracking-wide mb-2 font-light">
             Total Runs
           </p>
-          <p className="text-3xl font-bold text-spotify-green">
+          <p className="text-4xl font-bold text-spotify-green leading-tight">
             {stats.totalActivities}
           </p>
         </div>
         <div className="glass-panel rounded-lg p-6">
-          <p className="text-white text-sm uppercase tracking-wide mb-2">
+          <p className="text-white text-base uppercase tracking-wide mb-2 font-light">
             Total Plays
           </p>
-          <p className="text-3xl font-bold text-spotify-green">
+          <p className="text-4xl font-bold text-spotify-green leading-tight">
             {stats.totalPlays}
           </p>
         </div>
         <div className="glass-panel rounded-lg p-6">
-          <p className="text-white text-sm uppercase tracking-wide mb-2">
+          <p className="text-white text-base uppercase tracking-wide mb-2 font-light">
             Songs Matched
           </p>
-          <p className="text-3xl font-bold text-spotify-green">
+          <p className="text-4xl font-bold text-spotify-green leading-tight">
             {stats.totalDistinctSongsMatched}
           </p>
         </div>
@@ -52,17 +52,17 @@ export default async function Home() {
           <div className="absolute inset-0 bg-linear-to-l from-spotify-green/10 to-transparent pointer-events-none" />
 
           <div className="relative p-6">
-            <p className="text-spotify-green text-xs uppercase tracking-widest font-semibold mb-4">
+            <p className="text-spotify-green text-sm uppercase tracking-widest font-light mb-4">
               ⚡ Overall Fastest Split
             </p>
 
             <div className="flex gap-6 items-start">
               {/* Pace - the hero element */}
               <div className="shrink-0">
-                <p className="text-5xl font-bold text-spotify-green">
+                <p className="text-6xl font-bold text-spotify-green leading-tight">
                   {fastestSplit.pace}
                 </p>
-                <p className="text-white text-xs mt-1">
+                <p className="text-white text-sm mt-1 font-light">
                   Split {fastestSplit.splitNumber}
                 </p>
               </div>
@@ -70,15 +70,15 @@ export default async function Home() {
               {/* Supporting details - all secondary info */}
               <div className="flex-1 min-w-0">
                 {/* Activity name and date */}
-                <p className="text-white text-sm font-semibold">
+                <p className="text-white text-base font-bold">
                   {fastestSplit.activityName}
                 </p>
-                <p className="text-white text-xs opacity-75 mb-3">
+                <p className="text-white text-sm opacity-75 mb-3 font-light">
                   {fastestSplit.activityDate.toLocaleDateString()}
                 </p>
 
                 {/* Metadata row: distances + optional song - all inline */}
-                <div className="flex items-center gap-3 text-white text-xs mb-4 flex-wrap">
+                <div className="flex items-center gap-3 text-white text-sm mb-4 flex-wrap font-light">
                   <span>{fastestSplit.distance.toFixed(2)} mi split</span>
                   <span className="opacity-50">•</span>
                   <span>{fastestSplit.totalDistance.toFixed(2)} mi full run</span>
@@ -107,7 +107,7 @@ export default async function Home() {
                 {/* Description - at bottom with subtle separator */}
                 {fastestSplit.activityDescription && (
                   <div className="pt-3 border-t border-gray-600/50">
-                    <p className="text-white text-xs leading-relaxed">
+                    <p className="text-white text-sm leading-relaxed font-light">
                       {fastestSplit.activityDescription}
                     </p>
                   </div>
@@ -120,14 +120,14 @@ export default async function Home() {
 
       {/* Top Songs By Pace */}
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-white mb-6">
+        <h2 className="text-3xl font-bold text-white mb-6 leading-tight">
           Top 5 Songs I&apos;ve Run Fastest To
         </h2>
-        <div className="glass-panel rounded-lg overflow-hidden">
+        <div className="flex flex-col gap-4">
           {topSongs.map((song, idx) => (
             <div
               key={idx}
-              className={`relative p-4 ${idx < topSongs.length - 1 ? 'border-b glass-border' : ''}`}
+              className="glass-panel rounded-lg p-4 relative overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
             >
               {/* Accent wash on the right */}
               <div className="absolute inset-0 bg-linear-to-l from-spotify-green/10 to-transparent pointer-events-none" />
@@ -169,13 +169,13 @@ export default async function Home() {
 
                     {/* Song info - title, artist, metadata */}
                     <div className="min-w-0 flex flex-col">
-                      <p className="text-white font-semibold text-sm">
+                      <p className="text-white font-bold text-base leading-tight">
                         {song.trackName}
                       </p>
-                      <p className="text-white text-xs truncate">
+                      <p className="text-white text-sm truncate font-light">
                         {song.artist}
                       </p>
-                      <p className="text-white text-xs mt-2 opacity-80">
+                      <p className="text-white text-sm mt-2 opacity-80 font-light leading-snug">
                         {song.activityName} • {(song.splitDistanceMeters / 1609.34).toFixed(2)} mi split • {(song.totalActivityDistanceMeters / 1609.34).toFixed(2)} mi run
                       </p>
                     </div>
@@ -185,10 +185,10 @@ export default async function Home() {
                   <div className="flex-1 min-w-0 flex items-center py-2">
                     {song.activityDescription && (
                       <div className="flex flex-col border-l-2 border-white/15 pl-4">
-                        <p className="text-white text-xs uppercase tracking-widest font-semibold opacity-50 mb-1">
+                        <p className="text-white text-sm uppercase tracking-widest font-light opacity-50 mb-1">
                           Run Notes
                         </p>
-                        <p className="text-white text-xs line-clamp-3">
+                        <p className="text-white text-sm line-clamp-3 font-light leading-snug">
                           {song.activityDescription}
                         </p>
                       </div>
@@ -197,10 +197,10 @@ export default async function Home() {
 
                   {/* Right column: Pace + Date */}
                   <div className="shrink-0 text-right">
-                    <p className="text-spotify-green font-mono font-bold text-2xl">
+                    <p className="text-spotify-green font-mono font-bold text-3xl leading-tight">
                       {song.pace}
                     </p>
-                    <p className="text-white text-xs mt-2">
+                    <p className="text-white text-sm mt-2 font-light">
                       {song.activityDate.toLocaleDateString()}
                     </p>
                   </div>
@@ -215,7 +215,7 @@ export default async function Home() {
       {/* Most Played While Running */}
       {mostPlayed.length > 0 && (
         <div className="mb-10">
-          <h2 className="text-2xl font-bold text-white mb-6">
+          <h2 className="text-3xl font-bold text-white mb-6 leading-tight">
             Most Played While Running
           </h2>
           <div className="glass-panel rounded-lg overflow-hidden">
@@ -254,10 +254,10 @@ export default async function Home() {
 
                     {/* Track info and bar */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-semibold text-sm truncate">
+                      <p className="text-white font-bold text-base truncate leading-tight">
                         {song.trackName}
                       </p>
-                      <p className="text-white text-xs truncate opacity-80">
+                      <p className="text-white text-sm truncate opacity-80 font-light">
                         {song.artist}
                       </p>
 
@@ -269,7 +269,7 @@ export default async function Home() {
                             style={{ width: `${barWidth}%` }}
                           />
                         </div>
-                        <p className="text-spotify-green font-bold text-sm shrink-0 w-8 text-right">
+                        <p className="text-spotify-green font-bold text-base shrink-0 w-8 text-right leading-tight">
                           {song.playCount}
                         </p>
                       </div>
@@ -286,20 +286,20 @@ export default async function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-10 border-t glass-border">
         <Link href="/plays">
           <div className="glass-panel rounded-lg p-4 hover:bg-[rgba(255,255,255,0.08)] transition cursor-pointer">
-            <h3 className="text-lg font-semibold text-spotify-green mb-1">
+            <h3 className="text-xl font-bold text-spotify-green mb-1 leading-tight">
               Plays
             </h3>
-            <p className="text-white text-sm">
+            <p className="text-white text-base font-light">
               Browse recent Spotify plays
             </p>
           </div>
         </Link>
         <Link href="/runs">
           <div className="glass-panel rounded-lg p-4 hover:bg-[rgba(255,255,255,0.08)] transition cursor-pointer">
-            <h3 className="text-lg font-semibold text-spotify-green mb-1">
+            <h3 className="text-xl font-bold text-spotify-green mb-1 leading-tight">
               Runs
             </h3>
-            <p className="text-white text-sm">
+            <p className="text-white text-base font-light">
               View recent Strava activities
             </p>
           </div>

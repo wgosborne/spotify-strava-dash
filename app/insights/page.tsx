@@ -28,7 +28,7 @@ export default async function InsightsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
-      <h1 className="text-3xl md:text-4xl font-bold mb-12 text-white">
+      <h1 className="text-4xl md:text-5xl font-bold mb-12 text-white leading-tight">
         Insights
       </h1>
 
@@ -37,8 +37,8 @@ export default async function InsightsPage() {
         <div className="lg:col-span-2">
           <div className="glass-panel rounded-lg p-6">
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-white">Pace Over Time</h2>
-              <p className="text-gray-400 text-xs mt-1">{dateRange}</p>
+              <h2 className="text-2xl font-bold text-white leading-tight">Pace Over Time</h2>
+              <p className="text-gray-400 text-sm mt-1 font-light">{dateRange}</p>
             </div>
             {paceOverTime.length > 0 ? (
               <PaceOverTimeChart data={paceOverTime} dateRange={dateRange} />
@@ -54,7 +54,7 @@ export default async function InsightsPage() {
         <div>
           <div className="glass-panel rounded-lg overflow-hidden">
             <div className="p-6 border-b border-white/10">
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-white leading-tight">
                 Who You Run Fastest To
               </h2>
             </div>
@@ -72,7 +72,7 @@ export default async function InsightsPage() {
         <div>
           <div className="glass-panel rounded-lg p-6">
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-white">Run Consistency</h2>
+              <h2 className="text-2xl font-bold text-white leading-tight">Run Consistency</h2>
             </div>
             {runFrequency.length > 0 ? (
               <RunFrequencyHeatmap data={runFrequency} />
@@ -86,10 +86,10 @@ export default async function InsightsPage() {
         <div className="lg:col-span-2">
           <div className="glass-panel rounded-lg p-6">
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-white leading-tight">
                 Distance vs Pace
               </h2>
-              <p className="text-gray-400 text-xs mt-1">
+              <p className="text-gray-400 text-sm mt-1 font-light">
                 {distanceVsPace.length} splits analyzed
               </p>
             </div>

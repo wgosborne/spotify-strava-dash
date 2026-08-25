@@ -40,40 +40,40 @@ export default function RunRow({
           {/* Header row with name and key stats */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
             <div className="flex-1 min-w-0">
-              <h3 className="text-spotify-green hover:underline font-semibold text-base">
+              <h3 className="text-spotify-green hover:underline font-bold text-lg leading-tight">
                 {activity.name}
               </h3>
             </div>
             <div className="grid text-sm" style={{ gridTemplateColumns: 'repeat(4, minmax(75px, 1fr))', gap: '1rem' }}>
               <div>
-                <p className="text-black text-xs uppercase tracking-wide mb-1" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
+                <p className="text-black text-sm uppercase tracking-wide mb-1 font-light" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
                   Distance
                 </p>
-                <p className="text-white font-medium">
+                <p className="text-white font-bold text-base">
                   {activity.distance} mi
                 </p>
               </div>
               <div>
-                <p className="text-black text-xs uppercase tracking-wide mb-1" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
+                <p className="text-black text-sm uppercase tracking-wide mb-1 font-light" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
                   Pace
                 </p>
-                <p className="text-white font-mono font-medium">
+                <p className="text-white font-mono font-bold text-base">
                   {activity.pace}
                 </p>
               </div>
               <div>
-                <p className="text-black text-xs uppercase tracking-wide mb-1" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
+                <p className="text-black text-sm uppercase tracking-wide mb-1 font-light" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
                   Time
                 </p>
-                <p className="text-white font-medium">
+                <p className="text-white font-bold text-base">
                   {activity.time}
                 </p>
               </div>
               <div>
-                <p className="text-black text-xs uppercase tracking-wide mb-1" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
+                <p className="text-black text-sm uppercase tracking-wide mb-1 font-light" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
                   Date
                 </p>
-                <p className="text-white font-medium text-sm">
+                <p className="text-white font-bold text-base">
                   {activity.start_date}
                 </p>
               </div>
@@ -83,7 +83,7 @@ export default function RunRow({
           {/* Description section with expand/collapse */}
           {activity.description && (
             <div className="pt-3 border-t border-dark/50">
-              <p className={`text-white text-sm leading-relaxed ${!isExpanded ? 'line-clamp-2' : ''}`}>
+              <p className={`text-white text-base leading-relaxed font-light ${!isExpanded ? 'line-clamp-2' : ''}`}>
                 {activity.description}
                 {!isExpanded && truncated && (
                   <button

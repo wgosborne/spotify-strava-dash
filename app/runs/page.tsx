@@ -45,7 +45,7 @@ export default async function RunsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 md:py-8">
-      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-white">Recent Runs</h1>
+      <h1 className="text-4xl md:text-5xl font-bold mb-8 text-white leading-tight">Recent Runs</h1>
 
       <div className="space-y-3">
         {plainActivities.map((activity) => (
