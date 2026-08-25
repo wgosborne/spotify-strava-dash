@@ -37,52 +37,32 @@ export default function RunRow({
         <div className="absolute inset-0 bg-linear-to-l from-spotify-green/10 to-transparent pointer-events-none" />
 
         <div className="relative">
-          {/* Header row with name and key stats */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+          {/* Header row with title and pace (hero stat) */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-spotify-green hover:underline font-bold text-lg leading-tight">
+              <h3 className="text-white hover:underline font-bold text-lg leading-tight mb-3">
                 {activity.name}
               </h3>
+              {/* Secondary stats: distance, time, date */}
+              <div className="flex flex-wrap gap-4 text-white text-sm font-light">
+                <span>{activity.distance} mi</span>
+                <span className="opacity-50">•</span>
+                <span>{activity.time}</span>
+                <span className="opacity-50">•</span>
+                <span>{activity.start_date}</span>
+              </div>
             </div>
-            <div className="grid text-sm" style={{ gridTemplateColumns: 'repeat(4, minmax(75px, 1fr))', gap: '1rem' }}>
-              <div>
-                <p className="text-black text-sm uppercase tracking-wide mb-1 font-light" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
-                  Distance
-                </p>
-                <p className="text-white font-bold text-base">
-                  {activity.distance} mi
-                </p>
-              </div>
-              <div>
-                <p className="text-black text-sm uppercase tracking-wide mb-1 font-light" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
-                  Pace
-                </p>
-                <p className="text-white font-mono font-bold text-base">
-                  {activity.pace}
-                </p>
-              </div>
-              <div>
-                <p className="text-black text-sm uppercase tracking-wide mb-1 font-light" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
-                  Time
-                </p>
-                <p className="text-white font-bold text-base">
-                  {activity.time}
-                </p>
-              </div>
-              <div>
-                <p className="text-black text-sm uppercase tracking-wide mb-1 font-light" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
-                  Date
-                </p>
-                <p className="text-white font-bold text-base">
-                  {activity.start_date}
-                </p>
-              </div>
+            {/* Pace - the hero element */}
+            <div className="shrink-0 text-right sm:text-left">
+              <p className="text-spotify-green font-mono font-bold text-3xl leading-tight">
+                {activity.pace}
+              </p>
             </div>
           </div>
 
           {/* Description section with expand/collapse */}
           {activity.description && (
-            <div className="pt-3 border-t border-dark/50">
+            <div className="pt-3">
               <p className={`text-white text-base leading-relaxed font-light ${!isExpanded ? 'line-clamp-2' : ''}`}>
                 {activity.description}
                 {!isExpanded && truncated && (
